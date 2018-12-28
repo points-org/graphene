@@ -125,6 +125,8 @@ static int loader_filter (const char * key, int len)
 
 extern void * enclave_base;
 
+extern sgx_arch_key128_t enclave_key;
+
 void pal_linux_main(const char ** arguments, const char ** environments,
                     struct pal_sec * sec_info)
 {
@@ -147,6 +149,14 @@ void pal_linux_main(const char ** arguments, const char ** environments,
     init_untrusted_slab_mgr(pagesz);
     init_pages();
     init_enclave_key();
+
+    //SGX_DBG(DBG_S, "ENCLAVE_KEY: %s\n", alloca_bytes2hexstr(enclave_key));
+    for (const char **e = environments; *e; e++) {
+        if (strcmp_static(*e, "ENCLAVE_KEY=00000000000000000000000000000000000000000000")) {
+            SGX_DBG(DBG_S, "Ingesting enclave seal to to environment var ENCLAVE_KEY\n");
+            bytes2hexstr(enclave_key, *e + 12, 40);
+        }
+    }
 
     /* now we can add a link map for PAL itself */
     setup_pal_map(&pal_map);

@@ -71,7 +71,7 @@ int sgx_get_report (sgx_arch_hash_t * mrenclave,
     return 0;
 }
 
-static sgx_arch_key128_t enclave_key;
+sgx_arch_key128_t enclave_key;
 
 #define KEYBUF_SIZE ((sizeof(sgx_arch_key128_t) * 2) + 1)
 int sgx_verify_report (sgx_arch_report_t * report)
@@ -98,6 +98,7 @@ int init_enclave_key (void)
     sgx_arch_keyrequest_t keyrequest;
     memset(&keyrequest, 0, sizeof(sgx_arch_keyrequest_t));
     keyrequest.keyname = SEAL_KEY;
+    keyrequest.keypolicy = KEYPOLICY_MRENCLAVE;
 
     int ret = sgx_getkey(&keyrequest, &enclave_key);
     if (ret) {
