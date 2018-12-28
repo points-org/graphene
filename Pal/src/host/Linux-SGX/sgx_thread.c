@@ -46,6 +46,11 @@ void map_tcs (unsigned int tid)
             ((struct enclave_dbginfo *) DBGINFO_ADDR)->thread_tids[i] = tid;
             break;
         }
+    int thread_used = 0;
+    for (int i = 0; i < enclave_thread_num ; i++) {
+        if (enclave_thread_map[i].tid) { thread_used++; }
+    }
+    SGX_DBG(DBG_E, "thread usage: %d / %d\n", thread_used, enclave_thread_num);
 }
 
 void unmap_tcs (void)
