@@ -200,6 +200,8 @@ free_and_err:
 extern void * enclave_base;
 extern void * enclave_top;
 
+extern sgx_arch_key128_t enclave_key;
+
 void pal_linux_main(char * uptr_args, uint64_t args_size,
                     char * uptr_env, uint64_t env_size,
                     struct pal_sec * uptr_sec_info)
@@ -333,6 +335,15 @@ void pal_linux_main(char * uptr_args, uint64_t args_size,
     const char ** environments = make_argv_list(uptr_env, env_size);
     if (!environments) {
         return;
+    }
+
+    //SGX_DBG(DBG_S, "ENCLAVE_KEY: %s\n", ALLOCA_BYTES2HEXSTR(enclave_key));
+    for (const char **e = environments; *e; e++) {
+      //SGX_DBG(DBG_S, "env: %s\n", *e);
+      if (strcmp_static(*e, "ENCLAVE_KEY=00000000000000000000000000000000000000000000")) {
+        SGX_DBG(DBG_S, "Ingesting enclave seal key to to environment var ENCLAVE_KEY\n");
+        BYTES2HEXSTR(enclave_key, *e + 12, 40);
+      }
     }
 
     pal_state.start_time = start_time;
