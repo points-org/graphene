@@ -769,7 +769,7 @@ static int load_enclave (struct pal_enclave * enclave,
     pal_sec->start_time = tv.tv_sec * 1000000UL + tv.tv_usec;
 #endif
 
-    ret = open_gsgx();
+    ret = open_isgx();
     if (ret < 0)
         return ret;
 

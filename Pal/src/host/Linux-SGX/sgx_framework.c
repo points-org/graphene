@@ -13,6 +13,20 @@ int isgx_device = -1;
 
 void * zero_page;
 
+int open_isgx(void)
+{
+    isgx_device = INLINE_SYSCALL(open, 3, ISGX_FILE, O_RDWR | O_CLOEXEC, 0);
+    if (IS_ERR(isgx_device)) {
+        SGX_DBG(DBG_E, "Cannot open device " ISGX_FILE ". Please make sure the"
+                " Intel SGX kernel module is loaded.\n");
+        INLINE_SYSCALL(close, 1, gsgx_device);
+        gsgx_device = -1;
+        return -ERRNO(isgx_device);
+    }
+
+    return 0;
+}
+
 int open_gsgx(void)
 {
     gsgx_device = INLINE_SYSCALL(open, 3, GSGX_FILE, O_RDWR | O_CLOEXEC, 0);
